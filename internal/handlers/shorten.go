@@ -25,6 +25,20 @@ func ShortenURL(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, "URL is required...")
 	}
 
+
+	// default redirect type is 302
+	redirectType := body.RedirectType
+
+	if redirectType == "" {
+		redirectType = "302"
+	}
+
+	// allow only 301, 302, 307
+	if redirectType != "301" && redirectType != "302" && redirectType != "307" {
+		return fiber.NewError(fiber.StatusBadRequest, "Invalid redirect type. Allowed: 301, 302, 307")
+	}
+
+
 	// Generate short code, save to DB, and return response
 
 	code := utils.GenerateShortCode(6)
@@ -38,13 +52,14 @@ func ShortenURL(c *fiber.Ctx) error {
 
 	// Insert into DB
 
-	query := `INSERT INTO urls (code, target_url, expire_at) VALUES ($1, $2, $3) RETURNING code`
+	query := `INSERT INTO urls (code, target_url, redirect_type, expire_at) VALUES ($1, $2, $3, $4) RETURNING code`
 
 	err := database.DB.QueryRow(
 		context.Background(),
 		query,
 		code,
 		body.URL,
+		redirectType,
 		expiresAt,
 	).Scan(&code)
 
@@ -54,6 +69,7 @@ func ShortenURL(c *fiber.Ctx) error {
 	}
 	response := fiber.Map{
 		"short_url" : "http://localhost:3000/" + code,
+		"redirect_type": redirectType,
 	}
 
 	return c.JSON(response)

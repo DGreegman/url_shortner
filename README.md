@@ -154,7 +154,8 @@ Request body:
 ```json
 {
   "url": "https://example.com/some/long/path",
-  "expire_in": 3600
+  "expire_in": 3600,
+  "redirect_type" : "301"
 }
 ```
 

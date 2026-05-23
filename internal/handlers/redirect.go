@@ -38,7 +38,21 @@ func Redirect(c *fiber.Ctx) error {
 		code,
 	)
 
+
+	statusCode := fiber.StatusFound // default 302
+
+	switch urlData.RedirectType {
+	case "301":
+		statusCode = fiber.StatusMovedPermanently
+	case "302":
+		statusCode = fiber.StatusFound
+	case "307":
+		statusCode = fiber.StatusTemporaryRedirect
+	default:
+		statusCode = fiber.StatusFound
+	}
+
 	// Redirect to target URL
 
-	return c.Redirect(urlData.TargetUrl, fiber.StatusMovedPermanently)
+	return c.Redirect(urlData.TargetUrl, statusCode)
 }
