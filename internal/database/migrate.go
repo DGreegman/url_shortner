@@ -36,6 +36,19 @@ func Migrate() {
 		$$;
 			
 	
+		CREATE TABLE IF NOT EXISTS click_events (
+		event_id SERIAL PRIMARY KEY,
+		link_id INT NOT NULL REFERENCES urls(id) ON DELETE CASCADE,
+		ip VARCHAR(45),
+		user_agent TEXT,
+		referrer TEXT,
+		device_type VARCHAR(20),
+		country VARCHAR(50),
+		ts TIMESTAMP DEFAULT NOW()
+	);
+
+	CREATE INDEX IF NOT EXISTS idx_click_events_link_id ON click_events(link_id);
+	CREATE INDEX IF NOT EXISTS idx_click_events_timestamp ON click_events(ts);
 	`
 
 	_, err := DB.Exec(context.Background(), query)

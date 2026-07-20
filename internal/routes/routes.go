@@ -9,6 +9,7 @@ import (
 func RegisterRoutes(app *fiber.App) {
 	api := app.Group("/api/v1")
 	api.Post("/shorten", handlers.ShortenURL)
+	api.Get("/analytics/:code", handlers.GetAnalytics)
 
 	// Redirect route (catch-all for short codes, MUST be registered last)
 	app.Get("/:code", handlers.Redirect)
